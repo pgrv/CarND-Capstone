@@ -7,6 +7,8 @@ from styx_msgs.msg import Lane, Waypoint
 import math
 
 from std_msgs.msg import Int32
+from scipy.spatial import KDTree
+import numpy as np
 
 '''
 This node will publish waypoints from the car's current position to some `x` distance ahead.
@@ -42,6 +44,7 @@ class WaypointUpdater(object):
 
         # TODO: Add other member variables you need below
         self.pose = None
+        self.stopline_wp_idx = -1
         self.base_waypoints = None
         self.waypoints_2d = None
         self.waypoint_tree = None
@@ -83,7 +86,7 @@ class WaypointUpdater(object):
 
         closest_idx = self.get_closest_waypoint_idx()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
-        base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
+        base_waypoints = self.base_waypoints.waypoints[closest_idx:farthest_idx]
 
         if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = base_waypoints
@@ -117,7 +120,7 @@ class WaypointUpdater(object):
         # TODO: Implement
         self.base_waypoints = waypoints
         if not self.waypoints_2d:
-            self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoint]
+            self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
         pass
 
